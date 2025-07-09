@@ -5,7 +5,7 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
-    # This default ensures all 'run' steps execute in the repository's root directory.
+    # 这个默认设置可以确保所有 'run' 步骤都在仓库的根目录执行
     defaults:
       run:
         working-directory: ${{ github.workspace }}
@@ -22,7 +22,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          path: ${{ github.workspace }} # Explicitly check out to the working directory.
+          path: ${{ github.workspace }} # 明确检出到工作目录
 
       - name: West Init
         run: west init -l config
