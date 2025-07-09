@@ -1,3 +1,4 @@
+# 文件路径: config/west.yml
 manifest:
   remotes:
     - name: zmkfirmware
@@ -9,7 +10,6 @@ manifest:
       remote: zmkfirmware
       revision: main
       import: app/west.yml
-    # 这是我们唯一需要添加的外部模块
     - name: zmk-raw-hid
       remote: zzeneg
       revision: main
