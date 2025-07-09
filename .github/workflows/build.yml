@@ -5,11 +5,6 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
-    # 这个默认设置可以确保所有 'run' 步骤都在仓库的根目录执行
-    defaults:
-      run:
-        working-directory: ${{ github.workspace }}
-
     container:
       image: zmkfirmware/zmk-build-arm:3.5
       
@@ -19,20 +14,35 @@ jobs:
         shield: [2percentmilk]
         
     steps:
-      - name: Checkout
+      - name: Checkout user config
         uses: actions/checkout@v4
         with:
-          path: ${{ github.workspace }} # 明确检出到工作目录
+          path: zmk-config
 
-      - name: West Init
-        run: west init -l config
+      - name: Checkout ZMK
+        uses: actions/checkout@v4
+        with:
+          repository: zmkfirmware/zmk
+          path: zmk
 
-      - name: West Update
-        run: west update
+      - name: Initialize West
+        run: |
+          cd zmk
+          west init -l app --mf west-zmk.yml
+          cd ..
 
-      - name: West Build
-        run: west build -p -s zmk/app -b ${{ matrix.board }} -- -DSHIELD=${{ matrix.shield }}
+      - name: Update West Dependencies
+        run: |
+          cd zmk
+          west update
+          cd ..
 
+      - name: Build Firmware
+        run: |
+          cd zmk
+          west build -p -b ${{ matrix.board }} -- -DSHIELD=${{ matrix.shield }} -DZMK_CONFIG="${{ github.workspace }}/zmk-config/config"
+          cd ..
+          
       - name: Archive firmware
         uses: actions/upload-artifact@v4
         with:
