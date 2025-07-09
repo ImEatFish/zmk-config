@@ -5,7 +5,7 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
-    # 定义工作目录，确保所有步骤都在 zmk-config 仓库的根目录执行
+    # This default ensures all 'run' steps execute in the repository's root directory.
     defaults:
       run:
         working-directory: ${{ github.workspace }}
@@ -22,7 +22,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          path: ${{ github.workspace }} # 明确检出到工作目录
+          path: ${{ github.workspace }} # Explicitly check out to the working directory.
 
       - name: West Init
         run: west init -l config
