@@ -1,39 +1,44 @@
+// 文件路径: config/2percentmilk.keymap
+
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/bt.h>
 #include "page_turner.dtsi"
 
 / {
-    // 定义一个组合键，用于进入bootloader模式，方便后续固件更新
-    // 同时按住最左和最右两个键即可触发
-    combos {
-        compatible = "zmk,combos";
-        reset_combo {
-            timeout-ms = ;
-            key-positions = <0 1>; // 对应2%milk的两个按键
-            bindings = <&bootloader>;
+    behaviors {
+        // 定义一个 hold-tap 行为
+        // tapping-term-ms: 按下多长时间被判定为“长按” (280毫秒)
+        // quick-tap-ms: 在长按触发后，如果快速松开再按下，依然算单击
+        ht_fn: hold_tap_fn {
+            compatible = "zmk,behavior-hold-tap";
+            label = "HOLD_TAP_FN";
+            #binding-cells = <2>;
+            tapping-term-ms = <280>;
+            quick-tap-ms = <175>;
+            bindings = <&mo>, <&pg_turn>; // 长按: &mo (切换层), 单击: &pg_turn
         };
     };
 
     keymap {
         compatible = "zmk,keymap";
 
+        // 第0层：默认层
         default_layer {
-            // 将按键绑定到我们自定义的 &reader_cmd 行为
-            // 参数就是您指定的命令字节
-            // 2%milk 物理按键布局:
-            // [KEY 0][KEY 1]
+            // 按键0: 上翻页
+            // 按键1: 单击是下翻页, 长按切换到第1层(fn_layer)
             bindings = <
-                &reader_cmd 0x01      &reader_cmd 0x02    // 按键0: 上翻页, 按键1: 下翻页
+                &pg_turn 0x01      &ht_fn 1 0x02
             >;
         };
 
-        // 您可以定义更多层来实现其他功能
-        // 例如，定义一个功能层，用于控制设备
+        // 第1层：功能层
         fn_layer {
-             bindings = <
-                &reader_cmd 0x03      &bt BT_CLR          // 按键0: 返回, 按键1: 清除蓝牙配对
-             >;
+            // 按键0: 返回
+            // 按键1: 清除所有蓝牙配对
+            bindings = <
+                &pg_turn 0x03      &bt BT_CLR_ALL
+            >;
         };
     };
 };
