@@ -9,38 +9,21 @@ jobs:
       image: zmkfirmware/zmk-build-arm:3.5
     strategy:
       matrix:
-        # 在这里定义你要构建的硬件组合
-        # board: 你的主控板
-        # shield: 你的键盘布局/Shield
-        # 注意: 'milk_two_percent' 是我假设的你的2% milk键盘的shield名
-        # 你需要换成你在 `config` 目录中为它命名的实际文件名(不含.conf或.keymap后缀)
         board: [nice_nano_v2]
-        shield: [2percentmilk]
+        shield: [2percentmilk] # 我使用了你日志中提供的 shield 名称。
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Cache west modules
-        uses: actions/cache@v4
-        env:
-          cache-name: cache-west-modules
-        with:
-          path: |
-            bootloader/
-            modules/
-            tools/
-            zephyr/
-            zmk/
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('config/west.yml') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
+
       - name: West Init
         run: west init -l config
+
       - name: West Update
         run: west update
-      - name: West Build
-        run: west build -s zmk/app -b ${{ matrix.board }} -- -DSHIELD=${{ matrix.shield }}
+
+      - name: West Build (Pristine)
+        run: west build -p -b ${{ matrix.board }} -- -DSHIELD=${{ matrix.shield }}
+
       - name: Archive firmware
         uses: actions/upload-artifact@v4
         with:
