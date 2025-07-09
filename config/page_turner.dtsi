@@ -1,0 +1,10 @@
+// 文件路径: config/page_turner.dtsi
+/ {
+    behaviors {
+        pg_turn: page_turner {
+            compatible = "zmk,behavior-page-turner";
+            label = "PAGE_TURNER";
+            #binding-cells = <1>; // 声明此行为需要1个参数
+        };
+    };
+};
