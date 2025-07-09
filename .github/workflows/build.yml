@@ -1,6 +1,18 @@
-name: Build ZMK firmware
-on: [push, pull_request, workflow_dispatch]
+on: [push, workflow_dispatch]
 
 jobs:
   build:
-    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@v0.2
+    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@main
+    with:
+      # 在此处定义您的构建矩阵
+      include: |
+        # --- 发布版构建 ---
+        # 这是您日常使用的固件，经过功耗优化
+        - board: nice_nano_v2
+          shield: 2percentmilk
+
+        # --- 调试版构建 ---
+        # 这个固件启用了USB日志，用于故障排查
+        # 它会生成一个名为 "2percentmilk_debug_nice_nano_v2.uf2" 的文件
+        - board: nice_nano_v2
+          shield: 2percentmilk_debug
