@@ -1,18 +1,48 @@
-on: [push, workflow_dispatch]
+name: 'Build ZMK Firmware'
+
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   build:
-    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@main
-    with:
-      # 在此处定义您的构建矩阵
-      include: |
-        # --- 发布版构建 ---
-        # 这是您日常使用的固件，经过功耗优化
-        - board: nice_nano_v2
-          shield: 2percentmilk
-
-        # --- 调试版构建 ---
-        # 这个固件启用了USB日志，用于故障排查
-        # 它会生成一个名为 "2percentmilk_debug_nice_nano_v2.uf2" 的文件
-        - board: nice_nano_v2
-          shield: 2percentmilk_debug
+    runs-on: ubuntu-latest
+    container:
+      image: zmkfirmware/zmk-build-arm:3.5
+    strategy:
+      matrix:
+        # 在这里定义你要构建的硬件组合
+        # board: 你的主控板
+        # shield: 你的键盘布局/Shield
+        # 注意: 'milk_two_percent' 是我假设的你的2% milk键盘的shield名
+        # 你需要换成你在 `config` 目录中为它命名的实际文件名(不含.conf或.keymap后缀)
+        board: [nice_nano_v2]
+        shield: [2percentmilk]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Cache west modules
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-west-modules
+        with:
+          path: |
+            bootloader/
+            modules/
+            tools/
+            zephyr/
+            zmk/
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('config/west.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: West Init
+        run: west init -l config
+      - name: West Update
+        run: west update
+      - name: West Build
+        run: west build -s zmk/app -b ${{ matrix.board }} -- -DSHIELD=${{ matrix.shield }}
+      - name: Archive firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ matrix.board }}-${{ matrix.shield }}
+          path: zmk/app/build/zephyr/zmk.uf2
