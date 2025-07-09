@@ -1,50 +1,26 @@
+# 文件路径: .github/workflows/build.yml
 name: 'Build ZMK Firmware'
-
 on: [push, pull_request, workflow_dispatch]
-
 jobs:
   build:
     runs-on: ubuntu-latest
     container:
       image: zmkfirmware/zmk-build-arm:3.5
-      
     strategy:
       matrix:
         board: [nice_nano_v2]
         shield: [2percentmilk]
-        
     steps:
-      - name: Checkout ZMK
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          repository: zmkfirmware/zmk
-          path: zmk
-
-      - name: Checkout User Config
-        uses: actions/checkout@v4
-        with:
-          path: config
-
-      - name: Initialize West
-        run: |
-          cd zmk
-          west init -l ..
-          cd ..
-
-      - name: Update West Dependencies
-        run: |
-          cd zmk
-          west update
-          cd ..
-
-      - name: Build Firmware
-        run: |
-          cd zmk
-          west build -p -b ${{ matrix.board }} -- -d ../build/${{ matrix.shield }} -- -DSHIELD=${{ matrix.shield }} -DZMK_CONFIG="${{ github.workspace }}/config/config"
-          cd ..
-          
+      - name: West Init
+        run: west init -l config
+      - name: West Update
+        run: west update
+      - name: West Build
+        run: west build -p -s zmk/app -b ${{ matrix.board }} -- -DSHIELD=${{ matrix.shield }}
       - name: Archive firmware
         uses: actions/upload-artifact@v4
         with:
           name: firmware-${{ matrix.board }}-${{ matrix.shield }}
-          path: build/${{ matrix.shield }}/zephyr/zmk.uf2
+          path: zmk/app/build/zephyr/zmk.uf2
