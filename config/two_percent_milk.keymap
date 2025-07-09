@@ -1,22 +1,38 @@
-/*
- * Copyright (c) 2022 The ZMK Contributors
- *
- * SPDX-License-Identifier: MIT
- */
-
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/bt.h>
 
 / {
+    // 定义一个组合键，用于进入bootloader模式，方便后续固件更新
+    // 同时按住最左和最右两个键即可触发
+    combos {
+        compatible = "zmk,combos";
+        reset_combo {
+            timeout-ms = ;
+            key-positions = <0 1>; // 对应2%milk的两个按键
+            bindings = <&bootloader>;
+        };
+    };
+
     keymap {
         compatible = "zmk,keymap";
 
         default_layer {
+            // 将按键绑定到我们自定义的 &reader_cmd 行为
+            // 参数就是您指定的命令字节
+            // 2%milk 物理按键布局:
+            // [KEY 0][KEY 1]
             bindings = <
-                &kp X
-                &kp Z
+                &reader_cmd 0x01      &reader_cmd 0x02    // 按键0: 上翻页, 按键1: 下翻页
             >;
+        };
+
+        // 您可以定义更多层来实现其他功能
+        // 例如，定义一个功能层，用于控制设备
+        fn_layer {
+             bindings = <
+                &reader_cmd 0x03      &bt BT_CLR          // 按键0: 返回, 按键1: 清除蓝牙配对
+             >;
         };
     };
 };
