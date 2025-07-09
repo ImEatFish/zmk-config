@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         board: [nice_nano_v2]
-        shield: [2percentmilk] # 我使用了你日志中提供的 shield 名称。
+        shield: [2percentmilk]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,7 +22,8 @@ jobs:
         run: west update
 
       - name: West Build (Pristine)
-        run: west build -p -b ${{ matrix.board }} -- -DSHIELD=${{ matrix.shield }}
+        # 修正：在这里加上 -s zmk/app 来明确指定源代码目录
+        run: west build -p -s zmk/app -b ${{ matrix.board }} -- -DSHIELD=${{ matrix.shield }}
 
       - name: Archive firmware
         uses: actions/upload-artifact@v4
