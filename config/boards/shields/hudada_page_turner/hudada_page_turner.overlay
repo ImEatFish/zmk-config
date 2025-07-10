@@ -11,11 +11,11 @@
     kscan0: kscan {
         compatible = "zmk,kscan-gpio-direct";
         
-        /* * 这是关键的修正：
-         * 将属性从 'gpios' 修改为 'input-gpios' 以匹配最新的ZMK/Zephyr规范。
+        /* 使用 nice!nano v2 上确定可用的引脚 (D10 和 D9)
+         * 这是解决本次错误的最终修正。
          */
         input-gpios
-            = <&pro_micro 47 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>
-            , <&pro_micro 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+            = <&pro_micro 10 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)> // 第一个按键
+            , <&pro_micro 9 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>; // 第二个按键
     };
 };
