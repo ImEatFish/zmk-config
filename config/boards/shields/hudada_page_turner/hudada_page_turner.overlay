@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2024 The ZMK Contributors
+ * SPDX-License-Identifier: MIT
+ */
+
 / {
     chosen {
         zmk,kscan = &kscan0;
@@ -5,8 +10,12 @@
 
     kscan0: kscan {
         compatible = "zmk,kscan-gpio-direct";
-
-        gpios = <&pro_micro 47 (GPIO_ACTIVE_HIGH)>,
-                <&pro_micro 2  (GPIO_ACTIVE_HIGH)>;
+        
+        /* * 这是关键的修正：
+         * 将属性从 'gpios' 修改为 'input-gpios' 以匹配最新的ZMK/Zephyr规范。
+         */
+        input-gpios
+            = <&pro_micro 47 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>
+            , <&pro_micro 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
     };
 };
