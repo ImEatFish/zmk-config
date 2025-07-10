@@ -1,36 +1,15 @@
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>     // 引入蓝牙行为定义
+#include <dt-bindings/zmk/reset.h> // 引入复位行为定义
 
 / {
-    behaviors {
-        // 1. 定义我们三个新的、简单的行为实例
-        pg_up: page_up {
-            compatible = "hudada_page_turner,behavior-page-up";
-        };
-        pg_dn: page_down {
-            compatible = "hudada_page_turner,behavior-page-down";
-        };
-        pg_ret: page_return {
-            compatible = "hudada_page_turner,behavior-return";
-        };
-
-        // 2. 为第二个按键定义一个 hold-tap 行为
-        down_ret_ht: down_and_return_hold_tap {
-            compatible = "zmk,behavior-hold-tap";
-            label = "DOWN_AND_RETURN_HOLD_TAP";
-            #binding-cells = <0>;
-            tapping-term-ms = <200>;
-            // 它的绑定现在是两个简单的、无参数的行为，这100%符合语法
-            bindings = <&pg_ret>, <&pg_dn>;
-        };
-    };
-
-    // 3. 将行为应用到按键
     keymap {
         compatible = "zmk,keymap";
+
         default_layer {
             bindings = <
-                &pg_up      &down_ret_ht
+                &kp A      &ht &bt BT_CLR &sys_reset
             >;
         };
     };
