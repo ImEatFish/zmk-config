@@ -13,8 +13,8 @@ jobs:
     with:
       # 在这里定义你的编译矩阵
       # 注意：shield的名字必须和你 `app/shields/` 目录下的文件夹名完全一致
-      # 正确的参数名是 "include"，它接收一个JSON格式的字符串
-      include: |
+      # 正确的参数名是 "matrix_includes"，它接收一个JSON格式的字符串
+      matrix_includes: |
         [
           {
             "board": "nice_nano_v2",
