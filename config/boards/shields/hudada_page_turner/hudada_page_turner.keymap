@@ -1,13 +1,44 @@
-#include <behaviors.dtsi> // 这一次，我们包含了定义所有基础行为的文件
+#include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/hid_usage.h>
+#include <dt-bindings/zmk/hid_usage_pages.h>
 
 / {
+    behaviors {
+        pg_turn: page_turner_cmd {
+            compatible = "hudada_page_turner,behavior-page-turner-command";
+            #binding-cells = <1>;
+        };
+        down_ret_ht: down_and_return_hold_tap {
+            compatible = "zmk,behavior-hold-tap";
+            label = "DOWN_AND_RETURN_HOLD_TAP";
+            #binding-cells = <0>;
+            tapping-term-ms = <200>;
+            bindings = <&macro_return>, <&macro_pg_dn>;
+        };
+    };
+    macros {
+        macro_pg_up: page_up_macro {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&pg_turn C_SCAN_PREV>;
+        };
+        macro_pg_dn: page_down_macro {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&pg_turn C_SCAN_NEXT>;
+        };
+        macro_return: return_macro {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&pg_turn C_AC_BACK>;
+        };
+    };
     keymap {
         compatible = "zmk,keymap";
-
         default_layer {
             bindings = <
-                &kp A      &kp B
+                &macro_pg_up      &down_ret_ht
             >;
         };
     };
