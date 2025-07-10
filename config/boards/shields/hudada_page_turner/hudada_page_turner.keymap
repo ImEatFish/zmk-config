@@ -1,3 +1,4 @@
+#include <behaviors.dtsi> // 这一次，我们包含了定义所有基础行为的文件
 #include <dt-bindings/zmk/keys.h>
 
 / {
