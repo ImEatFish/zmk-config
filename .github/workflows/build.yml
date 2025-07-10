@@ -13,6 +13,11 @@ jobs:
     with:
       # 在这里定义你的编译矩阵
       # 注意：shield的名字必须和你 `app/shields/` 目录下的文件夹名完全一致
-      matrix:
-        - board: nice_nano_v2
-          shield: hudada_page_turner
+      # 矩阵必须以JSON字符串的格式提供，因此我们使用 `|` 来创建一个多行字符串
+      matrix: |
+        [
+          {
+            "board": "nice_nano_v2",
+            "shield": "hudada_page_turner"
+          }
+        ]
