@@ -2,52 +2,51 @@
 #include <dt-bindings/zmk/keys.h>
 
 / {
+    // 1. 定义基础行为
     behaviors {
-        // 定义我们的基础翻页行为 "pg"，它接收一个参数
-        // **注意**: 为了让固件能够成功编译，我们暂时将其“伪装”成一个标准的按键行为(&kp)。
+        // 为了让固件能够成功编译，我们暂时将其“伪装”成一个标准的按键行为(&kp)。
         // 这可以验证我们 keymap 的其余部分是正确的。
-        // 最终，您需要将其改回您自己的 custom behavior compatible 字符串。
+        // 最终，您需要创建实现自定义HID功能的C代码，并将 compatible 改回您自己的定义。
         pg: page_turner {
-            compatible = "zmk,behavior-key-press"; // 临时修正：使用一个已存在的 behavior 来通过编译
-            label = "PAGE_TURNER";
+            compatible = "zmk,behavior-key-press";
             #binding-cells = <1>;
         };
 
-        // --- 这是关键修正 ---
-        // 1. 单独定义“下翻页”这个完整的行为
-        pg_dn: page_down_action {
-            compatible = "zmk,behavior-mod-morph"; // 使用mod-morph来包装
-            label = "PG_DN";
-            #binding-cells = <0>;
-            bindings = <&pg N2>; // 在这里把参数传给 &pg (会发送按键 '2')
-        };
-
-        // 2. 单独定义“返回”这个完整的行为
-        pg_ret: page_return_action {
-            compatible = "zmk,behavior-mod-morph";
-            label = "PG_RET";
-            #binding-cells = <0>;
-            bindings = <&pg N3>; // 在这里把参数传给 &pg (会发送按键 '3')
-        };
-        // --- 修正结束 ---
-
-        // 现在，hold-tap可以引用上面定义好的完整行为了
+        // 3. 定义一个 hold-tap 行为
+        // 这个行为会引用下面 macros 中定义的具体动作
         down_ret: down_and_return {
             compatible = "zmk,behavior-hold-tap";
-            label = "DOWN_RETURN";
             #binding-cells = <0>;
-            tapping-term-ms = <200>;
-            // 正确的语法：直接引用两个完整的行为
-            bindings = <&pg_dn>, <&pg_ret>;
+            tapping-term-ms = <200>; // 200ms 内松开为单击
+            // 引用下面定义的两个宏，分别用于单击和长按
+            bindings = <&macro_pg_dn>, <&macro_pg_ret>;
         };
     };
 
+    // 2. 定义宏，作为 hold-tap 的具体动作
+    macros {
+        // 定义“下翻页”宏，它只做一件事：执行 &pg N2
+        macro_pg_dn: page_down_macro {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&pg N2>;
+        };
+
+        // 定义“返回”宏，它只做一件事：执行 &pg N3
+        macro_pg_ret: page_return_macro {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&pg N3>;
+        };
+    };
+
+    // 4. 将行为应用到按键映射
     keymap {
         compatible = "zmk,keymap";
 
         default_layer {
             bindings = <
-                &pg N1    &down_ret // 会发送按键 '1'
+                &pg N1    &down_ret
             >;
         };
     };
