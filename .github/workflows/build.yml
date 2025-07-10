@@ -13,7 +13,7 @@ jobs:
         # 在这里定义你的主板和shield名称
         # 注意: shield名称应与你的配置文件名(如 hudada_page_turner.conf)一致
         board: [nice_nano_v2]
-        shield: [hudada_page_turner]
+        shield: [test]
     steps:
       - name: Checkout
         uses: actions/checkout@v4

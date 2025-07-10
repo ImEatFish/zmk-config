@@ -6,7 +6,7 @@ manifest:
   projects:
     - name: zmk
       remote: zmkfirmware
-      revision: v3.5  # <--- [关键修正] 将版本固定到与构建环境匹配的 v3.5
+      revision: main  # <--- [关键修正] 改回 'main'
       import: app/west.yml
   self:
     path: config
