@@ -3,22 +3,39 @@
 
 / {
     behaviors {
-        // Defines our custom behavior, "pg", which links to the C code.
-        // It takes one parameter (#binding-cells = <1>), which is the byte to send.
+        // 定义我们的基础翻页行为 "pg"，它接收一个参数
         pg: page_turner {
             compatible = "zmk,behavior-page-turner";
             label = "PAGE_TURNER";
             #binding-cells = <1>;
         };
 
-        // Example of a more complex hold-tap behavior.
-        // Tap: Page Down (sends 0x02). Hold: Return (sends 0x03).
+        // --- 这是关键修正 ---
+        // 1. 单独定义“下翻页”这个完整的行为
+        pg_dn: page_down_action {
+            compatible = "zmk,behavior-mod-morph"; // 使用mod-morph来包装
+            label = "PG_DN";
+            #binding-cells = <0>;
+            bindings = <&pg 0x02>; // 在这里把参数传给 &pg
+        };
+
+        // 2. 单独定义“返回”这个完整的行为
+        pg_ret: page_return_action {
+            compatible = "zmk,behavior-mod-morph";
+            label = "PG_RET";
+            #binding-cells = <0>;
+            bindings = <&pg 0x03>; // 在这里把参数传给 &pg
+        };
+        // --- 修正结束 ---
+
+        // 现在，hold-tap可以引用上面定义好的完整行为了
         down_ret: down_and_return {
             compatible = "zmk,behavior-hold-tap";
             label = "DOWN_RETURN";
             #binding-cells = <0>;
-            tapping-term-ms = <200>; // 200ms window for a tap
-            bindings = <&pg 0x02>, <&pg 0x03>;
+            tapping-term-ms = <200>;
+            // 正确的语法：直接引用两个完整的行为
+            bindings = <&pg_dn>, <&pg_ret>;
         };
     };
 
@@ -26,9 +43,6 @@
         compatible = "zmk,keymap";
 
         default_layer {
-            // This maps your two buttons.
-            // Left button: Sends 0x01 (Page Up).
-            // Right button: Uses the hold-tap defined above.
             bindings = <
                 &pg 0x01    &down_ret
             >;
