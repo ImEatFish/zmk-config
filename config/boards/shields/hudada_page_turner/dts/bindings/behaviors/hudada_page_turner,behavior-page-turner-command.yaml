@@ -1,0 +1,7 @@
+# Copyright (c) 2024 The ZMK Contributors
+# SPDX-License-Identifier: MIT
+
+description: "Page Turner Command Behavior"
+compatible: "hudada_page_turner,behavior-page-turner-command"
+
+include: one_param.yaml

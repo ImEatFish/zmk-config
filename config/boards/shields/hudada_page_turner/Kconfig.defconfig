@@ -1,0 +1,9 @@
+# Copyright (c) 2024 The ZMK Contributors
+# SPDX-License-Identifier: MIT
+
+if SHIELD_HUDADA_PAGE_TURNER
+
+config ZMK_KEYBOARD_NAME
+    default "HudadaPageTurner"
+
+endif
