@@ -1,44 +1,25 @@
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
-#include <dt-bindings/zmk/hid_usage.h>
-#include <dt-bindings/zmk/hid_usage_pages.h>
 
 / {
     behaviors {
-        pg_turn: page_turner_cmd {
-            compatible = "hudada_page_turner,behavior-page-turner-command";
-            #binding-cells = <1>;
-        };
-        down_ret_ht: down_and_return_hold_tap {
+        // 我们定义一个只使用标准ZMK行为(&kp)的hold-tap
+        // 这将我们的自定义代码完全从测试中移除
+        ht_test: hold_tap_test {
             compatible = "zmk,behavior-hold-tap";
-            label = "DOWN_AND_RETURN_HOLD_TAP";
+            label = "HOLD_TAP_TEST";
             #binding-cells = <0>;
             tapping-term-ms = <200>;
-            bindings = <&macro_return>, <&macro_pg_dn>;
+            // 它的绑定是两个最简单的标准按键
+            bindings = <&kp A>, <&kp B>; 
         };
     };
-    macros {
-        macro_pg_up: page_up_macro {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&pg_turn C_SCAN_PREV>;
-        };
-        macro_pg_dn: page_down_macro {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&pg_turn C_SCAN_NEXT>;
-        };
-        macro_return: return_macro {
-            compatible = "zmk,behavior-macro";
-            #binding-cells = <0>;
-            bindings = <&pg_turn C_AC_BACK>;
-        };
-    };
+
     keymap {
         compatible = "zmk,keymap";
         default_layer {
             bindings = <
-                &macro_pg_up      &down_ret_ht
+                &kp C      &ht_test
             >;
         };
     };
