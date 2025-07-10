@@ -1,39 +1,31 @@
-#define DT_DRV_COMPAT hudada_page_turner_behavior_page_turner_command
-
 #include <zephyr/device.h>
-#include <zephyr/logging/log.h>
-#include <drivers/behavior.h>
 #include <zmk/behavior.h>
 #include <zmk/hid.h>
+#include <dt-bindings/zmk/hid_usage.h>
+#include <dt-bindings/zmk/hid_usage_pages.h>
 
-LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
+// --- 上一页 (Page Up) 行为驱动 ---
+#define DT_DRV_COMPAT hudada_page_turner_behavior_page_up
 
-struct behavior_pt_cmd_config {};
-struct behavior_pt_cmd_data {
-    uint16_t command;
-};
+static int on_press_up(const struct device* dev, uint32_t position) { return zmk_hid_consumer_report_press(C_SCAN_PREV); }
+static int on_release_up(const struct device* dev, uint32_t position) { return zmk_hid_consumer_report_release(C_SCAN_PREV); }
+static const struct behavior_driver_api api_up = { .binding_pressed = on_press_up, .binding_released = on_release_up };
+DEVICE_DT_INST_DEFINE(0, NULL, NULL, NULL, NULL, APPLICATION, CONFIG_KERNEL_INIT_PRIORITY_DEFAULT, &api_up);
 
-static int on_keymap_binding_pressed(const struct device* dev, uint32_t position, uint32_t command_param, uint32_t _) {
-    struct behavior_pt_cmd_data* data = dev->data;
-    data->command = (uint16_t)command_param;
-    LOG_DBG("position %d, command 0x%04X", position, data->command);
-    return zmk_hid_consumer_report_press(data->command);
-}
 
-static int on_keymap_binding_released(const struct device* dev, uint32_t position, uint32_t command_param, uint32_t _) {
-    struct behavior_pt_cmd_data* data = dev->data;
-    LOG_DBG("position %d, command 0x%04X", position, data->command);
-    return zmk_hid_consumer_report_release(data->command);
-}
+// --- 下一页 (Page Down) 行为驱动 ---
+#define DT_DRV_COMPAT hudada_page_turner_behavior_page_down
 
-static int behavior_pt_cmd_init(const struct device* dev) { return 0; };
+static int on_press_down(const struct device* dev, uint32_t position) { return zmk_hid_consumer_report_press(C_SCAN_NEXT); }
+static int on_release_down(const struct device* dev, uint32_t position) { return zmk_hid_consumer_report_release(C_SCAN_NEXT); }
+static const struct behavior_driver_api api_down = { .binding_pressed = on_press_down, .binding_released = on_release_down };
+DEVICE_DT_INST_DEFINE(0, NULL, NULL, NULL, NULL, APPLICATION, CONFIG_KERNEL_INIT_PRIORITY_DEFAULT, &api_down);
 
-static const struct behavior_driver_api behavior_pt_cmd_driver_api = {
-    .binding_pressed = on_keymap_binding_pressed,
-    .binding_released = on_keymap_binding_released,
-};
 
-DEVICE_DT_INST_DEFINE(0, behavior_pt_cmd_init, NULL,
-    &behavior_pt_cmd_data, &behavior_pt_cmd_config,
-    APPLICATION, CONFIG_KERNEL_INIT_PRIORITY_DEFAULT,
-    &behavior_pt_cmd_driver_api);
+// --- 返回 (Return) 行为驱动 ---
+#define DT_DRV_COMPAT hudada_page_turner_behavior_return
+
+static int on_press_ret(const struct device* dev, uint32_t position) { return zmk_hid_consumer_report_press(C_AC_BACK); }
+static int on_release_ret(const struct device* dev, uint32_t position) { return zmk_hid_consumer_report_release(C_AC_BACK); }
+static const struct behavior_driver_api api_ret = { .binding_pressed = on_press_ret, .binding_released = on_release_ret };
+DEVICE_DT_INST_DEFINE(0, NULL, NULL, NULL, NULL, APPLICATION, CONFIG_KERNEL_INIT_PRIORITY_DEFAULT, &api_ret);

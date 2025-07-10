@@ -1,9 +1,0 @@
-description: |
-  Page Turner Command Behavior
-  Sends a single consumer control code.
-
-compatible: "hudada_page_turner,behavior-page-turner-command"
-
-binding-cells: 1
-
-include: []
