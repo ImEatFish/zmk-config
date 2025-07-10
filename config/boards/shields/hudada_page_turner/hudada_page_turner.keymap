@@ -4,15 +4,24 @@
 #include <dt-bindings/zmk/hid_usage_pages.h>
 
 / {
-    // 1. 定义我们的自定义行为实例 (这部分一直都是正确的)
+    // 1. 定义我们的自定义行为实例
     behaviors {
         pg_turn: page_turner_cmd {
             compatible = "hudada_page_turner,behavior-page-turner-command";
             #binding-cells = <1>;
         };
+
+        // 2. 为第二个按键，定义一个完整的、独立的 hold-tap 行为 (本次修正的核心)
+        down_ret_ht: down_and_return_hold_tap {
+            compatible = "zmk,behavior-hold-tap";
+            label = "DOWN_AND_RETURN_HOLD_TAP";
+            #binding-cells = <0>; // 这个行为本身不接收参数
+            tapping-term-ms = <200>;
+            bindings = <&macro_return>, <&macro_pg_dn>; // 直接将宏绑定在这里
+        };
     };
 
-    // 2. 将复杂命令封装为简单的宏 (这是本次修正的核心)
+    // 3. 定义宏，作为 hold-tap 的具体动作 (这部分保持不变)
     macros {
         macro_pg_up: page_up_macro {
             compatible = "zmk,behavior-macro";
@@ -31,19 +40,13 @@
         };
     };
 
-    // 3. 将简单的宏应用到按键 (编译器可以轻松处理)
+    // 4. 将简单的行为和宏应用到按键
     keymap {
         compatible = "zmk,keymap";
         default_layer {
             bindings = <
-                &macro_pg_up      &ht &macro_return &macro_pg_dn
+                &macro_pg_up      &down_ret_ht
             >;
         };
-    };
-
-    // 4. 配置 hold-tap 的参数 (保持不变)
-    zmk,behavior-config {
-        compatible = "zmk,behavior-config";
-        tapping-term-ms = <200>;
     };
 };
