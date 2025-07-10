@@ -1,26 +1,55 @@
 # 文件路径: .github/workflows/build.yml
-name: 'Build ZMK Firmware'
+name: 'Build Hudada Page Turner Firmware'
 on: [push, pull_request, workflow_dispatch]
+
 jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: zmkfirmware/zmk-build-arm:3.5
+      image: zmkfirmware/zmk-build-arm:3.5 # 使用较新的构建环境
     strategy:
+      fail-fast: false
       matrix:
+        # 在这里定义你的主板和shield名称
+        # 注意: shield名称应与你的配置文件名(如 hudada_page_turner.conf)一致
         board: [nice_nano_v2]
-        shield: [2percentmilk]
+        shield: [hudada_page_turner]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Cache west modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            bootloader/
+            modules/
+            tools/
+            zephyr/
+            zmk/
+          key: ${{ runner.os }}-west-${{ hashFiles('config/west.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-west-
+
       - name: West Init
         run: west init -l config
+
       - name: West Update
         run: west update
+
+      - name: West Zephyr export # 关键修复：添加此步骤
+        run: west zephyr-export
+
       - name: West Build
-        run: west build -p -s zmk/app -b ${{ matrix.board }} -- -DSHIELD=${{ matrix.shield }}
+        run: west build -p always -s zmk/app -b ${{ matrix.board }} -- -DSHIELD=${{ matrix.shield }}
+
+      - name: Rename Firmware
+        run: |
+          mkdir -p firmware/
+          cp zmk/app/build/zephyr/zmk.uf2 firmware/${{ matrix.shield }}_${{ matrix.board }}.uf2
+
       - name: Archive firmware
         uses: actions/upload-artifact@v4
         with:
           name: firmware-${{ matrix.board }}-${{ matrix.shield }}
-          path: zmk/app/build/zephyr/zmk.uf2
+          path: firmware/
