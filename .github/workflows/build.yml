@@ -1,23 +1,62 @@
 # 文件路径: .github/workflows/build.yml
-# 这是ZMK官方推荐的、现代化的编译工作流
+# 这是一个基于官方示例的、经典的、稳定的手动构建工作流
 
-name: 'Build ZMK Firmware'
+name: 'Build Hudada Page Turner Firmware'
 
-# 在代码推送、合并请求或手动点击时触发编译
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
   build:
-    # 使用ZMK官方提供的可复用工作流
-    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@main
-    with:
-      # 在这里定义你的编译矩阵
-      # 注意：shield的名字必须和你 `app/shields/` 目录下的文件夹名完全一致
-      # 正确的参数名是 "matrix_includes"，它接收一个JSON格式的字符串
-      matrix_includes: |
-        [
-          {
-            "board": "nice_nano_v2",
-            "shield": "hudada_page_turner"
-          }
-        ]
+    runs-on: ubuntu-latest
+    container:
+      # 使用一个稳定且广泛使用的ZMK构建环境
+      image: zmkfirmware/zmk-build-arm:3.5
+    strategy:
+      fail-fast: false
+      matrix:
+        # 定义你的主板和shield
+        include:
+          - board: nice_nano_v2
+            shield: hudada_page_turner
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache west modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            bootloader/
+            modules/
+            tools/
+            zephyr/
+            zmk/
+          key: ${{ runner.os }}-west-${{ hashFiles('config/west.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-west-
+
+      - name: West Init
+        # 这一步假设您的west配置文件位于 'config/west.yml'
+        run: west init -l config
+
+      - name: West Update
+        run: west update
+
+      - name: West Zephyr export
+        run: west zephyr-export
+
+      - name: West Build
+        # 这是核心编译步骤，我们在这里明确指定主板、shield和配置文件路径
+        # 请确保您的shield文件位于 'config/boards/shields/hudada_page_turner/' 目录下
+        run: west build -p always -s zmk/app -b ${{ matrix.board }} -- -DSHIELD=${{ matrix.shield }} -DZMK_CONFIG="${GITHUB_WORKSPACE}/config"
+
+      - name: Rename Firmware
+        run: |
+          mkdir -p firmware/
+          cp build/zephyr/zmk.uf2 firmware/${{ matrix.shield }}_${{ matrix.board }}_${{ github.run_id }}.uf2
+
+      - name: Archive firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ matrix.board }}-${{ matrix.shield }}
+          path: firmware/
