@@ -3,7 +3,7 @@
 
 / {
     behaviors {
-        // ¶¨ÒåÎÒÃÇÈı¸öĞÂµÄ¡¢¼òµ¥µÄĞĞÎªÊµÀı
+        // å®šä¹‰æˆ‘ä»¬ä¸‰ä¸ªæ–°çš„ã€ç®€å•çš„è¡Œä¸ºå®ä¾‹
         pg_up: page_up {
             compatible = "hudada_page_turner,behavior-page-up";
         };
@@ -14,18 +14,18 @@
             compatible = "hudada_page_turner,behavior-return";
         };
 
-        // ÎªµÚ¶ş¸ö°´¼ü¶¨ÒåÒ»¸ö hold-tap ĞĞÎª
+        // ä¸ºç¬¬äºŒä¸ªæŒ‰é”®å®šä¹‰ä¸€ä¸ª hold-tap è¡Œä¸º
         down_ret_ht: down_and_return_hold_tap {
             compatible = "zmk,behavior-hold-tap";
             label = "DOWN_AND_RETURN_HOLD_TAP";
-            #binding-cells = <0>;
+            #binding-cells = <2>;
             tapping-term-ms = <200>;
-            // ËüµÄ°ó¶¨ÊÇÁ½¸ö¼òµ¥µÄ¡¢ÎŞ²ÎÊıµÄĞĞÎª
+            // å®ƒçš„ç»‘å®šæ˜¯ä¸¤ä¸ªç®€å•çš„ã€æ— å‚æ•°çš„è¡Œä¸º
             bindings = <&pg_ret>, <&pg_dn>;
         };
     };
 
-    // ½«ĞĞÎªÓ¦ÓÃµ½°´¼ü
+    // å°†è¡Œä¸ºåº”ç”¨åˆ°æŒ‰é”®
     keymap {
         compatible = "zmk,keymap";
         default_layer {
